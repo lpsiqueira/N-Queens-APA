@@ -1,1 +1,6 @@
 pseudo.txt
+debug.log
+tsconfig.json
+
+out/
+.vscode/

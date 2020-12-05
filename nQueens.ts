@@ -1,23 +1,23 @@
 interface Rainha {
-    lin: number,
-    col: number
+    lin: number;
+    col: number;
 };
 
 interface Celula {
-    estado: String,
-    diagD: number,
-    diagE: number
+    estado: String;
+    diagD: number;
+    diagE: number;
 }
 
 //ACHO QUE VAI TER QUE FAZER UM VETOR DE COLUNAS PARA CADA LINHA PQ MARCAÇÕES DE LINHAS ANTERIORES
 //QUE NÃO SÃO VIZINHAS VÃO SE PERDER
 
 function nRainhas(n: number) {
-    let rainhas: Rainha[];
-    let colunas: Celula[];
+    let rainhas: Rainha[] = [];
+    let colunas: Celula[] = [];
     for (let j=0; j<n; j++) {
         colunas[j] = {
-            estado: 'o',
+            estado: 'v',
             diagD: -1,
             diagE: -1
         }
@@ -31,6 +31,7 @@ function nRainhas(n: number) {
         for(let j=0; j<colunas.length; j++) {
             if(colunas[j].estado == 'v') {
                 colunaVazia = j;
+                break;
             }
         }
 
@@ -43,37 +44,57 @@ function nRainhas(n: number) {
             colunas[coluna].diagE = i;
 
             //andando as diagonais da proxima linha
-            auxColunas = [...colunas];
+            auxColunas = JSON.parse(JSON.stringify(colunas));
             for(let j=0; j<colunas.length; j++) { //acho que tem que desmarcar aqui
+                if (colunas[j].estado == 'd') auxColunas[j].estado = 'v'
                 if (j>0) {
-                    auxColunas[j-1].diagE = colunas[j].diagE;
-                    auxColunas[j-1].estado = 'd'; //talvez tenha que fazer só quando o estado é vazio
+                    if (colunas[j].diagE >= 0) {
+                        auxColunas[j-1].diagE = colunas[j].diagE;
+                        auxColunas[j].diagE = -1;
+                        if (colunas[j-1].estado == 'v') auxColunas[j-1].estado = 'd'; //talvez tenha que fazer só quando o estado é vazio
+                    }
                 }
                 if (j<colunas.length-1) {
-                    auxColunas[j+1].diagD = colunas[j].diagD;
-                    auxColunas[j+1].estado = 'd' //talvez tenha que fazer só quando o estado é vazio
+                    if (colunas[j].diagD >= 0) {
+                        auxColunas[j+1].diagD = colunas[j].diagD;
+                        auxColunas[j].diagD = -1;
+                        if (colunas[j+1].estado == 'v') auxColunas[j+1].estado = 'd' //talvez tenha que fazer só quando o estado é vazio
+                    }
                 }
             }
             //mandar a pagina mostrar a linha retornando o vetor rainhas e talvez colunas também
-            colunas = auxColunas;            
+            desenha(rainhas, i, colunas, "insere");
+            colunas = JSON.parse(JSON.stringify(auxColunas));            
             i++;
+            colunaVazia = -1;
         } else {
             i--;
             if (i == 0) i = n + 1;
             else {
                 //voltando com as diagonais da linha anterior
-                auxColunas = [...colunas];
+                auxColunas = JSON.parse(JSON.stringify(colunas));
                 for(let j=0; j<colunas.length; j++) {
+                    // se colunas[j].estado == 'd' então auxColunas[j].estado = 'v'
+                    if (colunas[j].estado == 'd') auxColunas[j].estado = 'v'
                     if (j>0) {
-                        auxColunas[j-1].diagD = colunas[j].diagD;
-                        auxColunas[j-1].estado = 'd'; //talvez tenha que fazer só quando o estado é vazio
+                        if (colunas[j].diagD >= 0) {
+                            auxColunas[j-1].diagD = colunas[j].diagD;
+                            auxColunas[j].diagD = -1;
+                            if (colunas[j-1].estado == 'v') auxColunas[j-1].estado = 'd'; //talvez tenha que fazer só quando o estado é vazio
+                        }
                     }
                     if (j<colunas.length-1) {
-                        auxColunas[j+1].diagE = colunas[j].diagE;
-                        auxColunas[j+1].estado = 'd'; //talvez tenha que fazer só quando o estado é vazio
+                        if (colunas[j].diagE >= 0) {
+                            auxColunas[j+1].diagE = colunas[j].diagE;
+                            auxColunas[j+1].diagE = -1;
+                            if (colunas[j+1].estado == 'v') auxColunas[j+1].estado = 'd'; //talvez tenha que fazer só quando o estado é vazio
+                        }
                     }
                 }
-                colunas = auxColunas;
+                colunas = JSON.parse(JSON.stringify(auxColunas));
+                //enviar a rainha que foi retirada
+
+                desenha(rainhas, i, colunas, "retira");
                 
                 colunas[coluna].estado = 'm';
                 colunas[coluna].diagD = -1;
@@ -85,3 +106,5 @@ function nRainhas(n: number) {
 
     }
 }
+
+nRainhas(4);
